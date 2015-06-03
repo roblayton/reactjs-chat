@@ -1,0 +1,30 @@
+body, 
+html {
+  font-family: 'Helvetica Neue', Helvetica, Arial;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#app {
+  height: 100%;
+}
+
+#public-wrapper {
+  background-color: #eee;
+  float: left;
+  height: 100%;
+  padding: 0 2%;
+  width: 72%; 
+}
+
+.messages {
+}
+
+#users {
+  background-color: #ccc;
+  float: right;
+  height: 100%;
+  padding: 0 2%;
+  width: 20%; 
+}
