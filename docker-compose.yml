@@ -2,3 +2,5 @@
   #image: "mongo:latest"
   #ports:
     #- "27017:27017"
+server:
+  build: ../socketio-chat-server

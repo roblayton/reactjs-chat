@@ -10,21 +10,60 @@ html {
   height: 100%;
 }
 
-#public-wrapper {
-  background-color: #eee;
-  float: left;
-  height: 100%;
-  padding: 0 2%;
-  width: 72%; 
-}
-
-.messages {
-}
-
-#users {
+#messages {
   background-color: #ccc;
   float: right;
   height: 100%;
   padding: 0 2%;
+  width: 72%; 
+  overflow: scroll;
+}
+
+#messages ul {
+  font-size: 1.2em;
+  padding: 0;
+  list-style-type: none;
+}
+
+#messages ul li {
+  padding: 5px 0;
+}
+
+.message .user {
+}
+
+.message .content {
+  padding-left: 10px;
+}
+
+#users {
+  background-color: #eee;
+  float: left;
+  height: 100%;
+  padding: 0 2%;
   width: 20%; 
 }
+
+#users ul {
+  color: #aaa;
+  list-style-type: none;
+  padding: 0;
+}
+
+#users ul li {
+  border-bottom: 1px solid #bbb;
+  padding: 10px 0;
+}
+
+#message-form {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+}
+
+.textbox {
+  height: 20px;  
+  width: 200px;
+}
+
+

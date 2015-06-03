@@ -21,7 +21,8 @@ var path = {
   DEST_BUILD: 'dist/build',
   DEST_SRC: 'dist/src',
   DEST_CSS: 'dist/css',
-  ENTRY_POINT: './src/js/App.js'
+  ENTRY_POINT: './src/js/App.js',
+  SERVER_ENTRY_POINT: './server/app.js'
 };
  
 // DEVELOPMENT
