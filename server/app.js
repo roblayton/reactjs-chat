@@ -1,9 +1,6 @@
-/**
- * Module dependencies.
- */
-
 var express = require('express'),
-    path = require('path');
+    path = require('path'),
+    StatsService = require('./StatsService');
 
 var app = module.exports = express.createServer();
 
@@ -14,9 +11,9 @@ var io = require('socket.io').listen(app);
 
 // Configuration
 app.configure(function(){
-  //app.use(sdc.helpers.getExpressMiddleware('chatapp'));
-  app.use(express.bodyParser());
+  app.use(StatsService.initExpressHelper());
   app.use(express.methodOverride());
+  app.use(express.bodyParser());
   app.use(express.static(path.join(__dirname, '..', 'dist')));
   app.use(app.router);
 });

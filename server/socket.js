@@ -1,13 +1,10 @@
-var StatsDClient = require('statsd-client');
-var sdc = new StatsDClient({ host: '192.168.99.103' });
+var StatsService = require('./StatsService');
 
-var start = new Date();
+var usernames = (function() {
 
-// Keep track of which names are used so that there are no duplicates
-var userNames = (function () {
   var names = {};
 
-  var claim = function (name) {
+  var candidate = function(name) {
     if (!name || names[name]) {
       return false;
     } else {
@@ -16,84 +13,63 @@ var userNames = (function () {
     }
   };
 
-  // find the lowest unused "guest" name and claim it
-  var getGuestName = function () {
+  var generateGuestName = function() {
     var name,
-      nextUserId = 1;
+        idCtr = 1;
 
     do {
-      name = 'Guest ' + nextUserId;
-      nextUserId += 1;
-    } while (!claim(name));
+      name = 'Guest' + idCtr;
+      idCtr++;
+    } while (!candidate(name));
 
     return name;
   };
 
-  // serialize claimed names as an array
-  var get = function () {
-    var res = [];
-    for (user in names) {
-      res.push(user);
+  var fetch = function() {
+    var arr = [];
+    for (n in names) {
+      arr.push(n);
     }
 
-    return res;
+    return arr;
   };
 
-  var free = function (name) {
+  var free = function(name) {
     if (names[name]) {
       delete names[name];
     }
   };
 
   return {
-    claim: claim,
+    candidate: candidate,
     free: free,
-    get: get,
-    getGuestName: getGuestName
-  };
+    fetch: fetch,
+    generateGuestName: generateGuestName
+  }
+
 }());
 
 // export function for listening to the socket
 module.exports = function (socket) {
-  var name = userNames.getGuestName();
+  var name = usernames.generateGuestName();
 
   // send the new user their name and a list of users
   socket.emit('init', {
     name: name,
-    users: userNames.get()
+    users: usernames.fetch()
   });
 
   // notify other clients that a new user has joined
-  socket.broadcast.emit('user:join', {
+  socket.broadcast.emit('user:joined', {
     name: name
   });
 
   // broadcast a user's message to other users
   socket.on('send:message', function (data) {
-    console.log(data);
     socket.broadcast.emit('send:message', {
       user: name,
       content: data.content
     });
-  });
-
-  // validate a user's name change, and broadcast it on success
-  socket.on('change:name', function (data, fn) {
-    if (userNames.claim(data.name)) {
-      var oldName = name;
-      userNames.free(oldName);
-
-      name = data.name;
-      
-      socket.broadcast.emit('change:name', {
-        oldName: oldName,
-        newName: name
-      });
-
-      fn(true);
-    } else {
-      fn(false);
-    }
   });
 
   // clean up when a user leaves, and broadcast it to other users
@@ -101,14 +77,19 @@ module.exports = function (socket) {
     socket.broadcast.emit('user:left', {
       name: name
     });
-    userNames.free(name);
+    usernames.free(name);
   });
 
   // metrics
   socket.on('metrics:ctr', function(key) {
-    sdc.increment(key); 
+    StatsService.increment(key); 
   });
-  socket.on('metrics:tmr', function(key) {
-    sdc.timing(key, start); 
+
+  socket.on('metrics:strtmr', function(key) {
+    StatsService.startTimer(key);
+  });
+
+  socket.on('metrics:endtmr', function(key) {
+    StatsService.endTimer(key);
   });
 };

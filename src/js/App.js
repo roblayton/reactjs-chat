@@ -9,22 +9,25 @@ var App = React.createClass({
   getInitialState: function() {
     socket.on('init', this.initialize);
     socket.on('send:message', this.messageReceived);
-    socket.on('user:join', this.userJoined);
+    socket.on('user:joined', this.userJoined);
     socket.on('user:left', this.userLeft);
+
+    socket.emit('metrics:ctr', 'std.sys.init');
+    socket.emit('metrics:ctr', 'std.usr.joined');
 
     return { users: [], messages: [], content: "" };
   },
   initialize: function(data) {
+    console.log(data);
     this.setState({ users: data.users, user: data.name });
   },
   messageReceived: function(message) {
     this.state.messages.push(message);
     this.forceUpdate(); 
 
-    socket.emit('metrics:tmr', 'std.msg.submit');
+    socket.emit('metrics:endtmr', 'std.msg.submit');
   },
   userJoined: function(data) {
-    console.log(data);
     this.state.users.push(data.name);
     this.state.messages.push({
       user: "BOT",
@@ -50,7 +53,7 @@ var App = React.createClass({
     this.forceUpdate();
 
     socket.emit('send:message', message);
-    socket.emit('metrics:tmr', 'std.msg.submit');
+    socket.emit('metrics:strtmr', 'std.msg.submit');
   },
   render: function() {
     return (
