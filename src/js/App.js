@@ -1,7 +1,7 @@
-var React = require('react');
-var UserList = require('./UserList');
-var MessageList = require('./MessageList');
-var MessageForm = require('./MessageForm');
+var React = require('react'),
+    UserList = require('./UserList'),
+    MessageList = require('./MessageList'),
+    MessageForm = require('./MessageForm');
 
 var socket = io.connect();
 
@@ -11,7 +11,7 @@ var App = React.createClass({
     socket.on('send:message', this.messageReceived);
     socket.on('user:join', this.userJoined);
     socket.on('user:left', this.userLeft);
-    
+
     return { users: [], messages: [], content: "" };
   },
   initialize: function(data) {
@@ -20,13 +20,18 @@ var App = React.createClass({
   messageReceived: function(message) {
     this.state.messages.push(message);
     this.forceUpdate(); 
+
+    socket.emit('metrics:tmr', 'std.msg.submit');
   },
   userJoined: function(data) {
+    console.log(data);
     this.state.users.push(data.name);
     this.state.messages.push({
       user: "BOT",
       content: data.name + " has entered the room"
     });
+
+    socket.emit('metrics:ctr', 'std.usr.joined');
     this.forceUpdate(); 
   },
   userLeft: function(data) {
@@ -36,6 +41,8 @@ var App = React.createClass({
       user: "BOT",
       content: data.name + " has left"
     });
+
+    socket.emit('metrics:ctr', 'std.usr.left');
     this.forceUpdate();
   },
   handleMessageSubmit: function(message) {
@@ -43,6 +50,7 @@ var App = React.createClass({
     this.forceUpdate();
 
     socket.emit('send:message', message);
+    socket.emit('metrics:tmr', 'std.msg.submit');
   },
   render: function() {
     return (

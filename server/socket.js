@@ -1,3 +1,8 @@
+var StatsDClient = require('statsd-client');
+var sdc = new StatsDClient({ host: '192.168.99.103' });
+
+var start = new Date();
+
 // Keep track of which names are used so that there are no duplicates
 var userNames = (function () {
   var names = {};
@@ -65,6 +70,7 @@ module.exports = function (socket) {
 
   // broadcast a user's message to other users
   socket.on('send:message', function (data) {
+    console.log(data);
     socket.broadcast.emit('send:message', {
       user: name,
       content: data.content
@@ -96,5 +102,13 @@ module.exports = function (socket) {
       name: name
     });
     userNames.free(name);
+  });
+
+  // metrics
+  socket.on('metrics:ctr', function(key) {
+    sdc.increment(key); 
+  });
+  socket.on('metrics:tmr', function(key) {
+    sdc.timing(key, start); 
   });
 };

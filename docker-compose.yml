@@ -1,6 +1,49 @@
-#database:
-  #image: "mongo:latest"
+#app:
+  #build: .
+  #links:
+    #- statsd
   #ports:
-    #- "27017:27017"
-server:
-  build: ../socketio-chat-server
+    #- "3072:3000"
+storage:
+  image: "busybox:latest"
+  volumes:
+    - /data
+statsd:
+  image: "arkii/statsd:influxdb"
+  environment:
+    INFLUXDB_HOST: "influxdb"
+    INFLUXDB_PORT: "8086"
+    INFLUXDB_DB: "chatapp"
+    STATSD_DEBUG: true
+  links:
+    - influxdb
+  ports:
+    - "8125:8125/udp"
+    - "8126:8126/tcp"
+influxdb:
+  image: tutum/influxdb
+  environment:
+    PRE_CREATE_DB: "chatapp"
+  volumes_from:
+    - storage
+  volumes:
+    - docker/influxdb.toml:/config/config.toml
+  ports:
+    - "8083:8083"
+    - "8086:8086"
+  expose:
+    - "8090"
+    - "8099"
+grafana:
+  image: "grafana/grafana:2.0.2"
+  links:
+    - influxdb
+  environment:
+    INFLUXDB_HOST: "influxdb"
+    INFLUXDB_NAME: "chatapp"
+    INFLUXDB_IS_GRAFANADB: true
+    HTTP_USER: root
+    HTTP_PASS: root
+  ports:
+    - "3000:3000"
+  
