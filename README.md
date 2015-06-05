@@ -1,6 +1,6 @@
 # reactjs-chat
 
-More focused on demonstrating the integration between a ReactJS chat client, statsD, influxDB, and grafana. Borrowed client code from [DanialK](https://github.com/DanialK/ReactJS-Realtime-Chat). 
+More focused on demonstrating the integration between a ReactJS chat client, statsD, influxDB, and grafana using Docker. Borrowed client code from [DanialK](https://github.com/DanialK/ReactJS-Realtime-Chat). 
  
 
 ```
